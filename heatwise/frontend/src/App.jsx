@@ -24,7 +24,7 @@ function App() {
   const [panelOpen, setPanelOpen] = useState(true)
 
   const { lstByDong, dongInfo, dongsByGu, nameToCode, seoulAvg, lstRange, loading } = useLSTData(year, month)
-  const { features } = useDongFeatures(selectedDong, year, month, nameToCode)
+  const { features, sliderBounds } = useDongFeatures(selectedDong, year, month, nameToCode)
 
   const handleSelectDong = (dongName) => {
     setSelectedDong(dongName)
@@ -125,6 +125,7 @@ function App() {
                   month={month}
                   nameToCode={nameToCode}
                   features={features}
+                  sliderBounds={sliderBounds}
                   adjustments={adjustments}
                   onAdjust={updateAdjustment}
                   projectArea={projectArea}

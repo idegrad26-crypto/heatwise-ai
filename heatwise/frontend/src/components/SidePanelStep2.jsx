@@ -3,27 +3,36 @@ import { PACKAGES, getVariablesByPackage } from '../utils/policyMeta'
 import PolicySlider from './PolicySlider'
 import OptimalCombinationModal from './OptimalCombinationModal'
 
-function SidePanelStep2({ selectedDong, year, month, nameToCode, features, adjustments, onAdjust, projectArea, onProjectAreaChange }) {
-    const [activePackage, setActivePackage] = useState('green')
-    const [modalOpen, setModalOpen] = useState(false)
+// Packages with area-based variables (Albedo, 녹지율)
+const AREA_PACKAGES = new Set(['green', 'surface'])
+
+function SidePanelStep2({ selectedDong, year, month, nameToCode, features, sliderBounds, adjustments, onAdjust, projectArea, onProjectAreaChange }) {
+  const [activePackage, setActivePackage] = useState('green')
+  const [modalOpen, setModalOpen] = useState(false)
 
   const variablesInPackage = getVariablesByPackage(activePackage)
+  const showAreaInput = AREA_PACKAGES.has(activePackage)
+
+  // Merge API bounds into variable meta
+  const getVariable = (variable) => {
+    const bounds = sliderBounds?.[variable.key]
+    if (!bounds) return variable
+    return {
+      ...variable,
+      safeLow: bounds.safeLow,
+      safeHigh: bounds.safeHigh,
+      step: bounds.step,
+      direction: bounds.direction,
+    }
+  }
 
   return (
     <div className="step2">
       <div className="step-tag-row">
-      <button
-  className="optimal-btn"
-  onClick={() => setModalOpen(true)}
->
-  💰 예산별 최적 조합 추천 보기
-</button>
+        <button className="optimal-btn" onClick={() => setModalOpen(true)}>
+          💰 예산별 최적 조합 추천 보기
+        </button>
       </div>
-
-      <ProjectAreaInput
-        value={projectArea}
-        onChange={onProjectAreaChange}
-      />
 
       <div className="package-tabs">
         {PACKAGES.map((pkg) => (
@@ -37,19 +46,26 @@ function SidePanelStep2({ selectedDong, year, month, nameToCode, features, adjus
         ))}
       </div>
 
+      {showAreaInput && (
+        <ProjectAreaInput value={projectArea} onChange={onProjectAreaChange} />
+      )}
+
       <div className="slider-list">
         {variablesInPackage.length === 0 ? (
           <div className="slider-empty">이 패키지에 변수가 없습니다</div>
         ) : (
-          variablesInPackage.map((variable) => (
-            <PolicySlider
-              key={variable.key}
-              variable={variable}
-              currentValue={features[variable.key]}
-              adjustedValue={adjustments[variable.key]}
-              onChange={(newVal) => onAdjust(variable.key, newVal)}
-            />
-          ))
+          variablesInPackage.map((variable) => {
+            const v = getVariable(variable)
+            return (
+              <PolicySlider
+                key={v.key}
+                variable={v}
+                currentValue={features[v.key]}
+                adjustedValue={adjustments[v.key]}
+                onChange={(newVal) => onAdjust(v.key, newVal)}
+              />
+            )
+          })
         )}
       </div>
 
