@@ -7,17 +7,14 @@ function PolicySlider({ variable, currentValue, adjustedValue, onChange }) {
   const max = variable.safeHigh
   const range = max - min || 1
 
-  // Position percentages for overlay elements
   const basePct = Math.max(0, Math.min(100, ((baseline - min) / range) * 100))
+  const thumbPct = Math.max(0, Math.min(100, ((value - min) / range) * 100))
 
-  // Color gradient: direction='increase' means higher = cooler (green on right)
-  //                 direction='decrease' means lower = cooler (green on left)
   const trackGradient =
     variable.direction === 'increase'
       ? 'linear-gradient(to right, #fca5a5, #fde047, #86efac)'
       : 'linear-gradient(to right, #86efac, #fde047, #fca5a5)'
 
-  // Is the delta in the "good" direction?
   const deltaSign =
     delta < 0 ? (variable.direction === 'decrease' ? 'good' : 'bad')
     : delta > 0 ? (variable.direction === 'increase' ? 'good' : 'bad')
@@ -30,14 +27,16 @@ function PolicySlider({ variable, currentValue, adjustedValue, onChange }) {
   const formatValue = (v) => {
     if (v == null) return '-'
     if (variable.step >= 1) return Math.round(v).toLocaleString()
-    return v.toFixed(3)
+    return v.toFixed(2)
   }
 
   const formatDelta = (d) => {
     const sign = d > 0 ? '+' : ''
     if (variable.step >= 1) return `${sign}${Math.round(d).toLocaleString()}`
-    return `${sign}${d.toFixed(3)}`
+    return `${sign}${d.toFixed(2)}`
   }
+
+  const unitStr = variable.unit || ''
 
   return (
     <div className="policy-slider">
@@ -49,23 +48,27 @@ function PolicySlider({ variable, currentValue, adjustedValue, onChange }) {
           )}
         </span>
         <span className="slider-current-wrap">
-          <span className="slider-current-val">{formatValue(baseline)}</span>
+          <span className="slider-current-val">현재 {formatValue(baseline)}{unitStr}</span>
           {changed && (
             <span className={`slider-delta-badge ${deltaSign}`}>
-              {formatDelta(delta)}
+              {formatDelta(delta)}{unitStr}
             </span>
           )}
         </span>
       </div>
 
-      {/* Color track + baseline marker + range input */}
       <div className="slider-track-wrap">
         <div className="slider-color-track" style={{ background: trackGradient }} />
         <div
           className="slider-baseline-marker"
           style={{ left: `${basePct}%` }}
-          title={`현재값: ${formatValue(baseline)}`}
+          title={`현재값: ${formatValue(baseline)}${unitStr}`}
         />
+        {changed && (
+          <div className="slider-thumb-label" style={{ left: `${thumbPct}%` }}>
+            {formatValue(value)}
+          </div>
+        )}
         <input
           type="range"
           min={min}
@@ -80,7 +83,7 @@ function PolicySlider({ variable, currentValue, adjustedValue, onChange }) {
       <div className="slider-footer">
         <span className="slider-range">
           조정범위: {formatValue(min)} ~ {formatValue(max)}
-          {variable.unit ? ` · 단위: ${variable.step}${variable.unit}` : ''}
+          {unitStr ? ` · 단위: ${variable.step}${unitStr}` : ''}
         </span>
       </div>
     </div>

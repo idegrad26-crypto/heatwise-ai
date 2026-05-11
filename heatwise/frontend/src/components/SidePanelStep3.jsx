@@ -14,6 +14,7 @@ function SidePanelStep3({ selectedDong, features, adjustments, projectArea, year
   const [simLoading, setSimLoading] = useState(false)
   const [insight, setInsight] = useState(null)
   const [insightLoading, setInsightLoading] = useState(false)
+  const [perVarDeltas, setPerVarDeltas] = useState({})
 
   const baseLST = features?.LST
   const dongName = dongInfo?.[selectedDong]?.dongName || ''
@@ -27,6 +28,7 @@ function SidePanelStep3({ selectedDong, features, adjustments, projectArea, year
     setSimLoading(true)
     setSimResult(null)
     setInsight(null)
+    setPerVarDeltas({})
 
     api
       .simulate({
@@ -40,6 +42,29 @@ function SidePanelStep3({ selectedDong, features, adjustments, projectArea, year
         setSimResult(result)
         setSimLoading(false)
         setInsightLoading(true)
+
+        // Per-variable simulations in parallel
+        const adjustedKeys = Object.keys(adjustments).filter((k) => {
+          const cur = features[k]
+          return cur != null && adjustments[k] != null && Math.abs(adjustments[k] - cur) > 0
+        })
+        if (adjustedKeys.length > 0) {
+          Promise.all(
+            adjustedKeys.map((key) =>
+              api.simulate({
+                adm_cd: selectedDong,
+                year,
+                month,
+                features: { [key]: adjustments[key] },
+                albedo_area_ratio: key === 'Albedo' ? area_ratio : 1.0,
+              }).then((r) => ({ key, delta: r.delta_T }))
+            )
+          ).then((results) => {
+            const deltas = {}
+            results.forEach(({ key, delta }) => { deltas[key] = delta })
+            setPerVarDeltas(deltas)
+          }).catch(() => {})
+        }
 
         return api.insight({
           delta_T: result.delta_T,
@@ -80,11 +105,17 @@ function SidePanelStep3({ selectedDong, features, adjustments, projectArea, year
       return {
         key,
         label: variable.label,
+        relatedPolicy: variable.relatedPolicy || '—',
         cost: estimateCost(variable, delta, projectArea),
         difficulty: estimateDifficulty(variable.package),
+        deltaLST: perVarDeltas[key],
       }
     })
     .filter(Boolean)
+    .sort((a, b) => {
+      if (a.deltaLST != null && b.deltaLST != null) return a.deltaLST - b.deltaLST
+      return 0
+    })
 
   return (
     <div className="step3">
@@ -156,23 +187,33 @@ function SidePanelStep3({ selectedDong, features, adjustments, projectArea, year
               <tr>
                 <th>정책 변수</th>
                 <th>ΔLST</th>
+                <th>관련 정책</th>
                 <th>사업비</th>
                 <th>난이도</th>
               </tr>
             </thead>
             <tbody>
-              {tableRows.map((row) => (
-                <tr key={row.key}>
-                  <td>{row.label}</td>
-                  <td className="cool">—</td>
-                  <td>{row.cost}</td>
-                  <td>
-                    <span className={`difficulty difficulty-${row.difficulty.level}`}>
-                      {row.difficulty.label}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {tableRows.map((row) => {
+                const dLst = row.deltaLST
+                const dStr = dLst != null
+                  ? `${dLst > 0 ? '+' : ''}${dLst.toFixed(2)}°C`
+                  : Object.keys(perVarDeltas).length === 0 ? '...' : '—'
+                return (
+                  <tr key={row.key}>
+                    <td>{row.label}</td>
+                    <td className={dLst != null ? (dLst < 0 ? 'cool' : 'warm') : ''}>
+                      {dStr}
+                    </td>
+                    <td className="related-policy">{row.relatedPolicy}</td>
+                    <td>{row.cost}</td>
+                    <td>
+                      <span className={`difficulty difficulty-${row.difficulty.level}`}>
+                        {row.difficulty.label}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         )}

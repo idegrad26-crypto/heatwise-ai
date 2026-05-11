@@ -20,9 +20,10 @@ export const POLICY_VARIABLES = [
         safeLow: 0.0,
         safeHigh: 2.5,
         recommendedUpper: 0.4,
-        costPerArea: 150000,        // 가로공원 조성 단가/㎡
+        costPerArea: 150000,
         appliesToArea: true,
         csvKey: 'green_ratio',
+        relatedPolicy: '도시숲 조성',
         description: '단위 면적당 녹지 비율. 가로공원·소공원·녹지대 등 포함. 증발산 효과로 LST 낮춤.',
       },
     {
@@ -37,6 +38,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 1000,
       costPerStep: 10000000,
       csvKey: 'street_tree_count',
+      relatedPolicy: '가로수 식재',
       description: '행정동 내 가로수 총 개수. 그늘 + 증산작용으로 도시 열섬 완화.',
     },
     {
@@ -51,6 +53,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 3000,
       costPerStep: 61500000,
       csvKey: 'roof_green_area',
+      relatedPolicy: '옥상녹화 지원',
       description: '누적 옥상녹화 조성 면적. 건물 표면 온도 직접 저감.',
     },
 
@@ -65,9 +68,10 @@ export const POLICY_VARIABLES = [
         safeLow: 0.05,
         safeHigh: 0.97,
         recommendedUpper: 0.30,
-        costPerArea: 25000,        // 쿨루프 도색 단가/㎡
-        appliesToArea: true,        // 시행 면적 영향을 받는 변수
+        costPerArea: 25000,
+        appliesToArea: true,
         csvKey: 'Albedo',
+        relatedPolicy: '쿨루프 보급',
         description: '지표면이 햇빛을 반사하는 비율. 0~1. 높을수록 흡수 적어 시원해짐. 쿨루프 도색이 대표 사업.',
       },
     {
@@ -82,6 +86,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 0,
       costPerStep: 4440000000,
       csvKey: 'floor_area_ratio',
+      relatedPolicy: '도시개발규제',
     },
 
     // ===== 폭염 저감 패키지 =====
@@ -97,6 +102,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 3,
       costPerStep: 8500000,
       csvKey: 'shade_count',
+      relatedPolicy: '그늘막 설치',
       description: '폭염 대비 인공 그늘막. 보행자 체감온도에 즉각 효과.',
     },
 
@@ -113,6 +119,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 7500,
       costPerStep: 30000,
       csvKey: 'energy_elec',
+      relatedPolicy: '에너지 효율화',
     },
     {
       key: '에너지사용량_가스',
@@ -126,6 +133,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 400,
       costPerStep: 30000,
       csvKey: 'energy_gas',
+      relatedPolicy: '에너지 효율화',
     },
 
     // ===== 교통량 관리 패키지 =====
@@ -141,6 +149,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 1000,
       costPerStep: 21071793,
       csvKey: 'vehicle_density',
+      relatedPolicy: '교통 수요관리',
     },
 
     // ===== 도시 생활환경(인구구조) 패키지 =====
@@ -156,6 +165,7 @@ export const POLICY_VARIABLES = [
       recommendedUpper: 7500,
       costPerStep: 7212790716,
       csvKey: 'population_density',
+      relatedPolicy: '도시재생',
     },
   ]
 
