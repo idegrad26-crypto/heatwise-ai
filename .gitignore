@@ -1,1 +1,3 @@
 *.zip
+heatwise/frontend/node_modules/
+heatwise/frontend/dist/
