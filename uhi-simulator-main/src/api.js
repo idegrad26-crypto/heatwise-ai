@@ -18,6 +18,7 @@ async function req(method, path, body) {
 export const api = {
   getDongList:        ()                             => req('GET',  '/summary/dong-list'),
   getYearsMonths:     ()                             => req('GET',  '/summary/years-months'),
+  getAllLst:          (year, month)                   => req('GET',  `/summary/all-lst?year=${year}&month=${month}`),
   getSummary:         (adm_cd, year, month)          => req('GET',  `/summary?adm_cd=${adm_cd}&year=${year}&month=${month}`),
   getSliderConfig:    (adm_cd, year, month)          => req('GET',  `/summary/slider-config?adm_cd=${adm_cd}&year=${year}&month=${month}`),
   simulate:           (body)                         => req('POST', '/simulate', body),

@@ -130,6 +130,14 @@ def get_slider_config(adm_cd: str, year: int, month: int) -> list[dict]:
     return result
 
 
+def get_all_lst(year: int, month: int) -> list[dict]:
+    panel = require_df(data_loader.panel, "feat_weather")
+    mask = (panel["year"] == year) & (panel["month"] == month)
+    df = panel[mask][["adm_cd", "LST"]].copy()
+    df["LST"] = df["LST"].apply(safe_float)
+    return [{"adm_cd": str(r["adm_cd"]), "lst": r["LST"]} for _, r in df.iterrows()]
+
+
 def get_dong_list() -> list[dict]:
     panel = require_df(data_loader.panel, "feat_weather")
     unique = (

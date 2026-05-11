@@ -51,3 +51,12 @@ def get_dong_list():
 def get_years_months():
     """조회 가능한 연도·월 목록."""
     return data_service.get_available_years_months()
+
+
+@router.get("/summary/all-lst")
+def get_all_lst(
+    year: int = Query(..., description="연도"),
+    month: int = Query(..., ge=1, le=12, description="월"),
+):
+    """지도 색상용: 전체 행정동 LST 일괄 반환."""
+    return data_service.get_all_lst(year, month)

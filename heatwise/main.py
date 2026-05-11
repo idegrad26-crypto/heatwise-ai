@@ -61,6 +61,8 @@ STATIC = Path(__file__).parent / "static"
 
 if DIST.exists():
     app.mount("/assets", StaticFiles(directory=str(DIST / "assets")), name="assets")
+    if (DIST / "data").exists():
+        app.mount("/data", StaticFiles(directory=str(DIST / "data")), name="data")
 
 if STATIC.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC)), name="static_legacy")
