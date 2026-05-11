@@ -1,11 +1,10 @@
 /**
- * GeoJSON ↔ CSV 매핑 (adm_cd8 직접 매칭 방식)
+ * GeoJSON ↔ API 매핑
  *
  * GeoJSON properties:
- *   - adm_cd8: '11010530' (8자리, CSV의 ADM_CD와 일치)
- *   - sggnm: '종로구'
- *   - adm_nm: '서울특별시 종로구 사직동'
- *   - sidonm: '서울특별시'
+ *   - adm_cd: '11010530' (8자리, 백엔드 ADM_CD와 일치)
+ *   - adm_nm: '사직동'
+ *   - gu_nm: '종로구'
  */
 
 /**
@@ -13,22 +12,25 @@
  */
 export function getMatchKey(feature) {
     const props = feature.properties || {}
-    return props.adm_cd8 || null
+    // adm_cd8 fallback for legacy GeoJSON, then adm_cd
+    return props.adm_cd8 ? String(props.adm_cd8) : props.adm_cd ? String(props.adm_cd) : null
   }
 
   /**
    * 자치구 이름
    */
   export function getGuName(feature) {
-    return feature.properties?.sggnm || ''
+    const props = feature.properties || {}
+    return props.gu_nm || props.sggnm || ''
   }
 
   /**
-   * 동 이름만 추출 ('서울특별시 종로구 사직동' → '사직동')
+   * 동 이름 추출
    */
   export function getDongName(feature) {
     const props = feature.properties || {}
     if (props.adm_nm) {
+      // Handle both '사직동' and '서울특별시 종로구 사직동'
       const parts = props.adm_nm.split(' ')
       return parts[parts.length - 1]
     }
@@ -36,10 +38,13 @@ export function getMatchKey(feature) {
   }
 
   /**
-   * 서울 외 행정동 필터링
+   * 서울 행정동 필터링 (이 GeoJSON은 서울만 포함)
    */
   export function isSeoul(feature) {
-    return feature.properties?.sidonm === '서울특별시'
+    const props = feature.properties || {}
+    if (props.sidonm) return props.sidonm === '서울특별시'
+    // GeoJSON with only Seoul data: always true
+    return true
   }
 
   /**
