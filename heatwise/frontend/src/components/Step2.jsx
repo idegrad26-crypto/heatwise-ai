@@ -17,23 +17,46 @@ function getCategory(label) {
 }
 
 function SliderItem({ s, value, onChange }) {
-  const pct = s.safe_high === s.safe_low
-    ? 0
-    : Math.round(((value - s.safe_low) / (s.safe_high - s.safe_low)) * 100)
-  const changed = value !== s.current_value
+  const range = s.safe_high - s.safe_low || 1
+  const thumbPct = ((value - s.safe_low) / range) * 100
+  const basePct  = ((s.current_value - s.safe_low) / range) * 100
+  const changed  = value !== s.current_value
+
+  // direction "up" = 높을수록 온도↓ (오른쪽=초록), "down" = 낮을수록 온도↓ (왼쪽=초록)
+  const trackGradient = s.direction === 'up'
+    ? 'linear-gradient(to right, #fca5a5, #fde047, #86efac)'   // 빨→노→초
+    : 'linear-gradient(to right, #86efac, #fde047, #fca5a5)'   // 초→노→빨
+
+  const deltaSign = value < s.current_value ? (s.direction === 'down' ? 'good' : 'bad')
+                  : value > s.current_value ? (s.direction === 'up'   ? 'good' : 'bad')
+                  : 'none'
 
   return (
     <div className="slider-item">
       <div className="slider-header">
         <span className="slider-label">{s.label}</span>
-        <span className={`slider-val-badge ${changed ? 'changed' : ''}`}>
+        <span className={`slider-val-badge ${changed ? (deltaSign === 'good' ? 'good' : 'changed') : ''}`}>
           {Number(value).toLocaleString(undefined, { maximumFractionDigits: 3 })}
+          {changed && <span className="slider-arrow">{deltaSign === 'good' ? ' ↓열섬' : ' ↑열섬'}</span>}
         </span>
       </div>
+
+      {/* 컬러 트랙 + 기준선 + 썸 */}
       <div className="slider-track-wrap">
+        {/* 색상 배경 트랙 */}
+        <div className="slider-color-track" style={{ background: trackGradient }} />
+
+        {/* 기준값 마커 */}
+        <div
+          className="slider-baseline-marker"
+          style={{ left: `${basePct}%` }}
+          title={`현재값: ${s.current_value}`}
+        />
+
+        {/* 실제 range input */}
         <input
           type="range"
-          className="slider-range"
+          className="slider-range-overlay"
           min={s.safe_low}
           max={s.safe_high}
           step={s.step || 0.01}
@@ -41,10 +64,11 @@ function SliderItem({ s, value, onChange }) {
           onChange={e => onChange(s.col, Number(e.target.value))}
         />
       </div>
+
       <div className="slider-meta-row">
-        <span className="slider-meta">{s.safe_low}</span>
-        <span className="slider-baseline">현재값 {s.current_value?.toLocaleString()}</span>
-        <span className="slider-meta">{s.safe_high}</span>
+        <span className="slider-meta">{Number(s.safe_low).toLocaleString(undefined,{maximumFractionDigits:3})}</span>
+        <span className="slider-baseline-label">▲ 현재 {Number(s.current_value).toLocaleString(undefined,{maximumFractionDigits:3})}</span>
+        <span className="slider-meta">{Number(s.safe_high).toLocaleString(undefined,{maximumFractionDigits:3})}</span>
       </div>
     </div>
   )
