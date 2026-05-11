@@ -27,7 +27,7 @@ function SidePanelStep2({ selectedDong, year, month, nameToCode, features, adjus
   className="optimal-btn"
   onClick={() => setModalOpen(true)}
 >
-  예산별 최적 조합 추천 보기
+  💰 예산별 최적 조합 추천 보기
 </button>
       </div>
 

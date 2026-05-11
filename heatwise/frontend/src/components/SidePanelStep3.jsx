@@ -135,7 +135,17 @@ function SidePanelStep3({ selectedDong, features, adjustments, projectArea, year
 
       {/* 3. 정책 효과 비교 테이블 */}
       <div className="effect-table-section">
-        <h3 className="section-title">정책 효과 비교</h3>
+        <div className="section-title-row">
+          <h3 className="section-title">정책 효과 비교</h3>
+          <a
+            className="cost-table-link"
+            href="https://www.notion.so"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            단위 비용 환산표 →
+          </a>
+        </div>
         {tableRows.length === 0 ? (
           <div className="effect-empty">
             슬라이더를 조정하면 변수별 효과가 표시됩니다
