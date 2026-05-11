@@ -80,6 +80,18 @@ def get_shap_top3(adm_cd: str, year: int, month: int) -> list[dict]:
         (shap_df["month"] == month)
     )
     filtered = shap_df[mask].copy()
+    # Fallback to most recent available year if no data
+    if filtered.empty:
+        available_years = sorted(shap_df["year"].unique(), reverse=True)
+        for fallback_year in available_years:
+            mask2 = (
+                (shap_df["adm_cd"] == str(adm_cd)) &
+                (shap_df["year"] == fallback_year) &
+                (shap_df["month"] == month)
+            )
+            filtered = shap_df[mask2].copy()
+            if not filtered.empty:
+                break
     if filtered.empty:
         return []
 
